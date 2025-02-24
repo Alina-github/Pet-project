@@ -7,10 +7,35 @@ const __dirname = dirname(__filename);
 
 const compat = new FlatCompat({
   baseDirectory: __dirname,
+  additionalPluginPool: {
+    "@typescript-eslint": require("@typescript-eslint/eslint-plugin"),
+    "react": require("eslint-plugin-react")
+  }
 });
 
 const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...compat.extends("next/core-web-vitals", "eslint:recommended", "plugin:@typescript-eslint/recommended"),
+  {
+    files: ["__tests__/**/*", "**/*.test.ts"],
+    env: {
+      jest: true
+    }
+  },
+  {
+    files: ["*.ts", "*.tsx", "*.js", "*.jsx"],
+    rules: {
+      "@typescript-eslint/consistent-type-imports": "error",
+      "react/jsx-curly-brace-presence": ["error", { "props": "never", "children": "ignore" }]
+    }
+  },
+  {
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off"
+    }
+  },
+  {
+    ignorePatterns: ["node_modules/", ".next/", ".vercel/", ".log-api/"]
+  }
 ];
 
 export default eslintConfig;
