@@ -1,9 +1,11 @@
 "use client";
 
+import { Button } from '@heroui/react';
 import { useState } from "react";
-import { Input, Button, Link } from "@nextui-org/react";
+import { Input, Link } from "@nextui-org/react";
 import { api } from "../utils/api"; //TODO: use alias
 import FormContainer from "../components/FormContainer";
+
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -58,10 +60,10 @@ const Login = () => {
             
             {error && <p className="text-danger text-sm">{error}</p>}
             
-            <Button 
-                color="primary"
+            <Button
+                color="danger"
                 onPress={handleLogin}
-                className="mt-2"
+                //className="bg-green-500 text-white rounded-md px-4 py-2 hover:bg-blue-600 size='lg'"
                 fullWidth
                 size="lg"
                 isLoading={isLoading}
