@@ -2,9 +2,9 @@
 
 import { Button } from '@heroui/react';
 import { useState } from "react";
-import { Input, Link } from "@nextui-org/react";
-import { api } from "../utils/api"; //TODO: use alias
-import FormContainer from "../components/FormContainer";
+import { Input, Link } from "@heroui/react";
+import { api } from "@/src/utils/api"; //TODO: use alias
+import FormContainer from "../../components/FormContainer";
 
 
 const Login = () => {

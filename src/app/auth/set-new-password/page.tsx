@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Input, Button, Link } from "@nextui-org/react";
-import { api } from "../utils/api";
-import FormContainer from "../components/FormContainer";
+import { Input, Button, Link } from "@heroui/react";
+import { api } from "@/src/utils/api";
+import FormContainer from "../../components/FormContainer";
 
 const SetNewPassword = () => {
     const [password, setPassword] = useState("");
