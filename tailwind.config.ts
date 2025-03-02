@@ -4,11 +4,11 @@ import type { Config } from 'tailwindcss';
 export default {
   content: [
     '.src/app/**/*.{js,ts,jsx,tsx,mdx}', // Folder 'app' contains UI elements.
-    "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
+    './node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
     extend: {},
   },
-  darkMode: "class",
+  darkMode: 'class',
   plugins: [heroui()],
-} satisfies Config
+} satisfies Config;
