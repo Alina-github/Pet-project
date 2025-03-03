@@ -89,7 +89,7 @@ const SetNewPassword = () => {
       ) : (
         <div className="py-4 text-center">
           <p className="mb-4 text-success">Password updated successfully!</p>
-          <Button as={Link} href="/login" color="primary">
+          <Button as={Link} href="/auth/login" color="primary">
             Go to Login
           </Button>
         </div>

@@ -60,18 +60,12 @@ const Login = () => {
 
       {error && <p className="text-sm text-danger">{error}</p>}
 
-      <Button
-        color="danger"
-        onPress={handleLogin}
-        //className="bg-green-500 text-white rounded-md px-4 py-2 hover:bg-blue-600 size='lg'"
-        fullWidth
-        size="lg"
-        isLoading={isLoading}>
+      <Button color="danger" onPress={handleLogin} fullWidth size="lg" isLoading={isLoading}>
         Login
       </Button>
 
       <div className="mt-2 flex justify-center">
-        <Link href="/reset-password" className="text-sm">
+        <Link href="/auth/reset-password" className="text-sm">
           Forgot password?
         </Link>
       </div>

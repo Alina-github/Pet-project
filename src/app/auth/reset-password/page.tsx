@@ -67,14 +67,14 @@ const ResetPassword = () => {
       ) : (
         <div className="py-4 text-center">
           <p className="mb-4 text-success">Reset link sent! Check your email.</p>
-          <Button as={Link} href="/login" color="primary" variant="flat">
+          <Button as={Link} href="/auth/login" color="primary" variant="flat">
             Back to Login
           </Button>
         </div>
       )}
 
       <div className="mt-2 flex justify-center">
-        <Link href="/login" className="text-sm">
+        <Link href="/auth/login" className="text-sm">
           Back to Login
         </Link>
       </div>
