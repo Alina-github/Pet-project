@@ -1,5 +1,6 @@
 'use client';
 
+import { PATH } from '@/constants/routing';
 import { api } from '@/utils/api';
 import { Input, Button, Link } from '@heroui/react';
 import { useState } from 'react';
@@ -33,9 +34,9 @@ const SetNewPassword = () => {
     setIsLoading(true);
 
     try {
-      const response = await api.post('/auth/set-new-password', { password });
-      console.log('Password updated successfully:', response);
+      const response = await api.post(PATH.SET_NEW_PASSWORD, { password });
       setSuccess(true);
+      return response; // TODO: Handle password update properly, when BE is implemented.
     } catch (error) {
       console.error('Set new password error:', error);
       setError('Failed to update password. Please try again.');
@@ -89,7 +90,7 @@ const SetNewPassword = () => {
       ) : (
         <div className="py-4 text-center">
           <p className="mb-4 text-success">Password updated successfully!</p>
-          <Button as={Link} href="/auth/login" color="primary">
+          <Button as={Link} href={PATH.LOGIN} color="primary">
             Go to Login
           </Button>
         </div>

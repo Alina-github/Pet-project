@@ -1,5 +1,6 @@
 'use client';
 
+import { PATH } from '@/constants/routing';
 import { api } from '@/utils/api';
 import { Input, Button, Link } from '@heroui/react';
 import { useState } from 'react';
@@ -22,9 +23,9 @@ const ResetPassword = () => {
     setIsLoading(true);
 
     try {
-      const response = await api.post('/auth/reset-password', { email });
-      console.log('Reset link sent:', response);
+      const response = await api.post(PATH.RESET_PASSWORD, { email });
       setSuccess(true);
+      return response; // TODO: handle password reset properly.
     } catch (error) {
       console.error('Reset password error:', error);
       setError('Failed to send reset link. Please try again.');
@@ -67,14 +68,14 @@ const ResetPassword = () => {
       ) : (
         <div className="py-4 text-center">
           <p className="mb-4 text-success">Reset link sent! Check your email.</p>
-          <Button as={Link} href="/auth/login" color="primary" variant="flat">
+          <Button as={Link} href={PATH.LOGIN} color="primary" variant="flat">
             Back to Login
           </Button>
         </div>
       )}
 
       <div className="mt-2 flex justify-center">
-        <Link href="/auth/login" className="text-sm">
+        <Link href={PATH.LOGIN} className="text-sm">
           Back to Login
         </Link>
       </div>

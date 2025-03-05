@@ -1,5 +1,6 @@
 'use client';
 
+import { PATH } from '@/constants/routing';
 import { api } from '@/utils/api';
 import { Button } from '@heroui/react';
 import { Input, Link } from '@heroui/react';
@@ -23,9 +24,8 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await api.post('/auth/login', { email, password });
-      console.log('Login successful:', response);
-      // Handle successful login (e.g., redirect)
+      const response = await api.post(PATH.LOGIN, { email, password });
+      return response; // TODO: Handle successful login (e.g., redirect)
     } catch (error) {
       console.error('Login error:', error);
       setError('Invalid email or password');
@@ -65,7 +65,7 @@ const Login = () => {
       </Button>
 
       <div className="mt-2 flex justify-center">
-        <Link href="/auth/reset-password" className="text-sm">
+        <Link href={PATH.RESET_PASSWORD} className="text-sm">
           Forgot password?
         </Link>
       </div>
