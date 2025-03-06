@@ -1,41 +1,106 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import js from '@eslint/js';
+import tseslint from '@typescript-eslint/eslint-plugin';
+import tsparser from '@typescript-eslint/parser';
+import reactPlugin from 'eslint-plugin-react';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  additionalPluginPool: {
-    "@typescript-eslint": require("@typescript-eslint/eslint-plugin"),
-    "react": require("eslint-plugin-react")
-  }
-});
-
-const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "eslint:recommended", "plugin:@typescript-eslint/recommended"),
+export default [
   {
-    files: ["__tests__/**/*", "**/*.test.ts"],
-    env: {
-      jest: true
-    }
+    ignores: ['node_modules/', '.next/', '.vercel/', '.log-api/'],
   },
+  // Base ESLint recommended rules
+  js.configs.recommended,
+  // Common environment globals
   {
-    files: ["*.ts", "*.tsx", "*.js", "*.jsx"],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: {
+        // Browser globals
+        window: 'readonly',
+        document: 'readonly',
+        navigator: 'readonly',
+        console: 'readonly',
+        // Node.js globals
+        process: 'readonly',
+        module: 'readonly',
+        require: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        // React globals
+        React: 'readonly',
+        // TypeScript globals
+        RequestInit: 'readonly',
+      },
+    },
     rules: {
-      "@typescript-eslint/consistent-type-imports": "error",
-      "react/jsx-curly-brace-presence": ["error", { "props": "never", "children": "ignore" }]
-    }
+      // Allow console for development
+      'no-console': 'off',
+      // Allow debugger during development
+      'no-debugger': 'off',
+    },
   },
+  // TypeScript files
   {
+    files: ['**/*.{ts,tsx}'],
+    plugins: {
+      '@typescript-eslint': tseslint,
+    },
+    languageOptions: {
+      parser: tsparser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+    },
     rules: {
-      "@typescript-eslint/no-explicit-any": "off"
-    }
+      ...tseslint.configs.recommended.rules,
+      '@typescript-eslint/consistent-type-imports': 'error',
+      '@typescript-eslint/no-explicit-any': 'off',
+      // Allow unused vars with underscore prefix and specific variables
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_$',
+          ignoreRestSiblings: true,
+        },
+      ],
+    },
   },
+  // React files
   {
-    ignorePatterns: ["node_modules/", ".next/", ".vercel/", ".log-api/"]
-  }
+    files: ['**/*.{js,jsx,ts,tsx}'],
+    plugins: {
+      react: reactPlugin,
+    },
+    settings: {
+      react: {
+        version: 'detect',
+      },
+    },
+    rules: {
+      'react/jsx-curly-brace-presence': ['error', { props: 'never', children: 'ignore' }],
+      'react/react-in-jsx-scope': 'off',
+      'react/prop-types': 'off',
+    },
+  },
+  // Test files
+  {
+    files: ['__tests__/**/*', '**/*.test.ts'],
+    languageOptions: {
+      globals: {
+        jest: true,
+        describe: true,
+        it: true,
+        expect: true,
+        beforeEach: true,
+        afterEach: true,
+        beforeAll: true,
+        afterAll: true,
+      },
+    },
+  },
 ];
-
-export default eslintConfig;
