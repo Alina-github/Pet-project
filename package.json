@@ -13,6 +13,8 @@
   "dependencies": {
     "@heroui/react": "2.7.4",
     "framer-motion": "^12.4.2",
+    "jose": "^6.0.8",
+    "lowdb": "^7.0.1",
     "next": "15.1.7",
     "ofetch": "^1.4.1",
     "react": "^19.0.0",
