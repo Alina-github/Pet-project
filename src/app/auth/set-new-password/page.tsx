@@ -2,6 +2,7 @@
 
 import { PATH } from '@/constants/routing';
 import { api } from '@/utils/api';
+import { API_ROUTES } from '@/utils/constants';
 import { Input, Button, Link } from '@heroui/react';
 import { useState } from 'react';
 
@@ -34,7 +35,7 @@ const SetNewPassword = () => {
     setIsLoading(true);
 
     try {
-      const response = await api.post(PATH.SET_NEW_PASSWORD, { password });
+      const response = await api.post(API_ROUTES.SET_PASSWORD, { password });
       setSuccess(true);
       return response; // TODO: Handle password update properly, when BE is implemented.
     } catch (error) {
@@ -90,7 +91,7 @@ const SetNewPassword = () => {
       ) : (
         <div className="py-4 text-center">
           <p className="mb-4 text-success">Password updated successfully!</p>
-          <Button as={Link} href={PATH.LOGIN} color="primary">
+          <Button as={Link} href={API_ROUTES.LOGIN} color="primary">
             Go to Login
           </Button>
         </div>
