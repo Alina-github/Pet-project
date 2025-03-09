@@ -2,8 +2,6 @@ import db from '@/utils/db';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-import { createSession } from '@/app/lib/session';
-
 export const POST = async (req: NextRequest) => {
   await db.read();
   const { email, password, code } = await req.json();

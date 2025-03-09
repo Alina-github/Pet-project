@@ -4,16 +4,20 @@ import { PATH } from '@/constants/routing';
 import { api } from '@/utils/api';
 import { API_ROUTES } from '@/utils/constants';
 import { Input, Button, Link } from '@heroui/react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import FormContainer from '@/app/components/FormContainer';
 
 const SetNewPassword = () => {
   const [password, setPassword] = useState('');
+  const [code] = useState('399907'); // Add code state from query params
+  const [email] = useState('test@example.com'); // Add email from query params
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const router = useRouter();
 
   const handleSetNewPassword = async () => {
     if (!password || !confirmPassword) {
@@ -35,9 +39,13 @@ const SetNewPassword = () => {
     setIsLoading(true);
 
     try {
-      const response = await api.post(API_ROUTES.SET_PASSWORD, { password });
-      setSuccess(true);
-      return response; // TODO: Handle password update properly, when BE is implemented.
+      const response = await api.post(API_ROUTES.SET_PASSWORD, { password, email, code });
+      if (response.success) {
+        setSuccess(true);
+        setError('');
+        router.push(PATH.HOME);
+        return response; // TODO: Handle password update properly, when BE is implemented.
+      }
     } catch (error) {
       console.error('Set new password error:', error);
       setError('Failed to update password. Please try again.');
@@ -91,7 +99,7 @@ const SetNewPassword = () => {
       ) : (
         <div className="py-4 text-center">
           <p className="mb-4 text-success">Password updated successfully!</p>
-          <Button as={Link} href={API_ROUTES.LOGIN} color="primary">
+          <Button as={Link} href={PATH.LOGIN} color="primary">
             Go to Login
           </Button>
         </div>
