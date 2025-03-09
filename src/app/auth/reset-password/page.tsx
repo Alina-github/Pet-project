@@ -2,6 +2,7 @@
 
 import { PATH } from '@/constants/routing';
 import { api } from '@/utils/api';
+import { API_ROUTES } from '@/utils/constants';
 import { Input, Button, Link } from '@heroui/react';
 import { useState } from 'react';
 
@@ -23,7 +24,7 @@ const ResetPassword = () => {
     setIsLoading(true);
 
     try {
-      const response = await api.post(PATH.RESET_PASSWORD, { email });
+      const response = await api.post(API_ROUTES.RESET_PASSWORD, { email });
       setSuccess(true);
       return response; // TODO: handle password reset properly.
     } catch (error) {
