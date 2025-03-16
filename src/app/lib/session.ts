@@ -5,7 +5,7 @@ import { TextEncoder } from 'util';
 
 import type { SessionPayload } from '@/app/lib/definitions';
 
-const secretKey = process.env.SESSION_SECRET;
+const secretKey = process.env.SESSION_SECRET || (Math.random() + 1).toString(36).substring(2);
 const encodedKey = new TextEncoder().encode(secretKey);
 
 export async function encrypt(payload: SessionPayload) {

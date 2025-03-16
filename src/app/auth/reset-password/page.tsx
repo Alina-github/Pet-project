@@ -5,6 +5,7 @@ import { api } from '@/utils/api';
 import { API_ROUTES } from '@/utils/constants';
 import { Input, Button, Link } from '@heroui/react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 import FormContainer from '@/app/components/FormContainer';
 
@@ -24,12 +25,12 @@ const ResetPassword = () => {
     setIsLoading(true);
 
     try {
-      const response = await api.post(API_ROUTES.RESET_PASSWORD, { email });
+      await api.post(API_ROUTES.RESET_PASSWORD, { email });
       setSuccess(true);
-      return response; // TODO: handle password reset properly.
-    } catch (error) {
-      console.error('Reset password error:', error);
-      setError('Failed to send reset link. Please try again.');
+      toast('Reset link sent! Check your email.');
+    } catch (error: any) {
+      toast('Failed to send reset link.');
+      console.error('Reset password error:', error.data?.error);
     } finally {
       setIsLoading(false);
     }
@@ -74,12 +75,6 @@ const ResetPassword = () => {
           </Button>
         </div>
       )}
-
-      <div className="mt-2 flex justify-center">
-        <Link href={PATH.LOGIN} className="text-sm">
-          Back to Login
-        </Link>
-      </div>
     </FormContainer>
   );
 };

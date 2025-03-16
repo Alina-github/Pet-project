@@ -1,31 +1,43 @@
 import db from '@/utils/db';
+import bcrypt from 'bcryptjs';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 import { createSession } from '@/app/lib/session';
 
+// Corrected password verification function
+async function verifyPassword(enteredPassword: string, storedHash: string) {
+  return await bcrypt.compare(enteredPassword, storedHash);
+}
+
 export const POST = async (req: NextRequest) => {
-  await db.read(); // load latest data from file
-  console.log('db.data', db.data);
+  await db.read(); // Load latest data from file
   if (!db.data) {
     return NextResponse.json({ error: 'Database not initialized' }, { status: 500 });
   }
+
   const { email, password } = await req.json();
 
   if (!email || !password) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
-  const validUser = db.data.users.find(
-    (user) => user.email === email && user.password === password
-  );
+  // Find user by email
+  const user = db.data.users.find((user) => user.email === email);
 
-  if (!validUser) {
-    return NextResponse.json({ error: 'Email or password is incorrect' }, { status: 400 });
+  if (!user) {
+    return NextResponse.json({ error: 'Email is incorrect' }, { status: 400 });
   }
 
-  await createSession({ userId: validUser.email, role: validUser.role });
+  // Properly await password verification
+  const isValidPassword = await verifyPassword(password, user.password as string);
 
-  const { name, role } = validUser;
+  if (!isValidPassword) {
+    return NextResponse.json({ error: 'Password is incorrect' }, { status: 400 });
+  }
+
+  await createSession({ userId: user.email, role: user.role });
+
+  const { name, role } = user;
   return NextResponse.json({ user: { email, name, role } });
 };

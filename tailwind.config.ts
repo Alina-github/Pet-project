@@ -58,6 +58,6 @@ export default {
       },
     },
   },
-  darkMode: ['class', 'class'],
+  darkMode: ['class'],
   plugins: [heroui(), tailwindcssAnimate],
 } satisfies Config;

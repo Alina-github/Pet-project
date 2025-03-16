@@ -1,4 +1,5 @@
 import db from '@/utils/db';
+import bcrypt from 'bcryptjs';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
@@ -15,13 +16,16 @@ export const POST = async (req: NextRequest) => {
   }
 
   let existingUser = db.data.users.find((user) => user.email === email);
-  const validCode = db.data.codes.find((code) => code.email === email);
+  const validCode = db.data.codes.find((dbcode) => dbcode.email === email && dbcode.code == code);
 
   if (!existingUser || !validCode) {
-    return NextResponse.json({ error: 'Invalid code or user' }, { status: 403 });
+    return NextResponse.json(
+      { error: `Invalid ${!existingUser ? 'user' : 'code'}` },
+      { status: 403 }
+    );
   }
 
-  existingUser.password = password;
+  existingUser.password = await bcrypt.hash(password, 10); // 10 is the recommended salt rounds
   db.data.codes = db.data.codes.filter((code) => code.email !== email);
   await db.write();
 

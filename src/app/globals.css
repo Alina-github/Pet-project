@@ -66,3 +66,8 @@
     @apply bg-background text-foreground;
   }
 }
+
+/*This is a hack to prevent the default Next portal from rendering on the server*/
+nextjs-portal {
+  display: none !important;
+}
