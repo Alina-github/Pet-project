@@ -26,7 +26,9 @@ export const POST = async (req: NextRequest) => {
   }
 
   existingUser.password = await bcrypt.hash(password, 10); // 10 is the recommended salt rounds
-  db.data.codes = db.data.codes.filter((code) => code.email !== email);
+  db.data.codes = db.data.codes.filter(
+    (codeEntry) => codeEntry.email !== email && codeEntry.code !== code
+  );
   await db.write();
 
   const { name, role } = existingUser;

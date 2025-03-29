@@ -5,9 +5,9 @@ import { api } from '@/utils/api';
 import { API_ROUTES } from '@/utils/constants';
 import { Button } from '@heroui/react';
 import { Input, Link } from '@heroui/react';
+import { addToast } from '@heroui/toast';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { toast } from 'sonner';
 
 import FormContainer from '@/app/components/FormContainer';
 import type { User } from '@/app/types';
@@ -32,10 +32,17 @@ const Login = () => {
       const response: User = await api.post(API_ROUTES.LOGIN, { email, password });
 
       if (response.user) {
-        toast('Login successful.');
+        addToast({
+          color: 'secondary',
+          description: 'Login successful.',
+        });
         router.push(PATH.HOME);
       }
     } catch (error) {
+      addToast({
+        color: 'danger',
+        description: 'Login failed.',
+      });
       console.error('login error:', error);
       setError('Invalid email or password');
     } finally {

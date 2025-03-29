@@ -3,9 +3,8 @@
 import { PATH } from '@/constants/routing';
 import { api } from '@/utils/api';
 import { API_ROUTES } from '@/utils/constants';
-import { Input, Button, Link } from '@heroui/react';
+import { Input, Button, Link, addToast } from '@heroui/react';
 import { useState } from 'react';
-import { toast } from 'sonner';
 
 import FormContainer from '@/app/components/FormContainer';
 
@@ -27,9 +26,15 @@ const ResetPassword = () => {
     try {
       await api.post(API_ROUTES.RESET_PASSWORD, { email });
       setSuccess(true);
-      toast('Reset link sent! Check your email.');
+      addToast({
+        color: 'success',
+        description: 'Reset link sent! Check your email.',
+      });
     } catch (error: any) {
-      toast('Failed to send reset link.');
+      addToast({
+        color: 'danger',
+        description: 'Failed to send reset link.',
+      });
       console.error('Reset password error:', error.data?.error);
     } finally {
       setIsLoading(false);

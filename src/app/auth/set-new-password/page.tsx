@@ -3,10 +3,9 @@
 import { PATH } from '@/constants/routing';
 import { api } from '@/utils/api';
 import { API_ROUTES } from '@/utils/constants';
-import { Input, Button, Link } from '@heroui/react';
+import { addToast, Input, Button, Link } from '@heroui/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
-import { toast } from 'sonner';
 
 import FormContainer from '@/app/components/FormContainer';
 import type { User } from '@/app/types';
@@ -49,14 +48,18 @@ const SetNewPassword = () => {
       const response: User = await api.post(API_ROUTES.SET_PASSWORD, { password, email, code });
       if (response.user) {
         setSuccess(true);
-        // setPassword('');
-        // setConfirmPassword('');
         setError('');
-        toast('The password was successfully updated.');
+        addToast({
+          color: 'secondary',
+          description: 'The password was successfully updated.',
+        });
         router.push(PATH.HOME);
       }
     } catch (error) {
-      toast('Sorry, the password can could not be updated');
+      addToast({
+        color: 'danger',
+        description: 'Sorry, the password can could not be updated',
+      });
       console.error('Set new password error:', error);
       setError('Failed to update password. Please try again.');
     } finally {
