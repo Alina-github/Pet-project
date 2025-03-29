@@ -2,17 +2,22 @@
 
 import { PATH } from '@/constants/routing';
 import { api } from '@/utils/api';
+import { API_ROUTES } from '@/utils/constants';
 import { Button } from '@heroui/react';
 import { Input, Link } from '@heroui/react';
+import { addToast } from '@heroui/toast';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import FormContainer from '@/app/components/FormContainer';
+import type { User } from '@/app/types';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const router = useRouter();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -24,10 +29,21 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await api.post(PATH.LOGIN, { email, password });
-      return response; // TODO: Handle successful login (e.g., redirect)
+      const response: User = await api.post(API_ROUTES.LOGIN, { email, password });
+
+      if (response.user) {
+        addToast({
+          color: 'secondary',
+          description: 'Login successful.',
+        });
+        router.push(PATH.HOME);
+      }
     } catch (error) {
-      console.error('Login error:', error);
+      addToast({
+        color: 'danger',
+        description: 'Login failed.',
+      });
+      console.error('login error:', error);
       setError('Invalid email or password');
     } finally {
       setIsLoading(false);

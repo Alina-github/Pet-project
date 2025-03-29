@@ -36,7 +36,7 @@ const createFetchHelper = (config: FetchHelperConfig): FetchHelper => {
 
 // Create a default API instance with a base URL
 export const api = createFetchHelper({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://api.example.com',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
   headers: {
     'Content-Type': 'application/json',
   },

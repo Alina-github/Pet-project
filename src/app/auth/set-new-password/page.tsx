@@ -2,10 +2,17 @@
 
 import { PATH } from '@/constants/routing';
 import { api } from '@/utils/api';
-import { Input, Button, Link } from '@heroui/react';
+import { API_ROUTES } from '@/utils/constants';
+import { addToast, Input, Button, Link } from '@heroui/react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
 import FormContainer from '@/app/components/FormContainer';
+import type { User } from '@/app/types';
+
+const MIN_PASSWORD_LENGTH = 3; //TODO: update to necessary value. Use 3 now for simplicity in testing.
+
+//TODO: remove example Link after Testing m: 'http://localhost:3000/auth/set-new-password?email=123%40example.com&code=399907' for testing. Provide email and code from Database.
 
 const SetNewPassword = () => {
   const [password, setPassword] = useState('');
@@ -13,6 +20,10 @@ const SetNewPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const email = searchParams.get('email');
+  const code = searchParams.get('code');
 
   const handleSetNewPassword = async () => {
     if (!password || !confirmPassword) {
@@ -25,7 +36,7 @@ const SetNewPassword = () => {
       return;
     }
 
-    if (password.length < 8) {
+    if (password.length < MIN_PASSWORD_LENGTH) {
       setError('Password must be at least 8 characters long');
       return;
     }
@@ -34,11 +45,22 @@ const SetNewPassword = () => {
     setIsLoading(true);
 
     try {
-      const response = await api.post(PATH.SET_NEW_PASSWORD, { password });
-      setSuccess(true);
-      return response; // TODO: Handle password update properly, when BE is implemented.
-    } catch (error) {
-      console.error('Set new password error:', error);
+      const response: User = await api.post(API_ROUTES.SET_PASSWORD, { password, email, code });
+      if (response.user) {
+        setSuccess(true);
+        setError('');
+        addToast({
+          color: 'success',
+          description: 'The password was successfully updated.',
+        });
+        router.push(PATH.HOME);
+      }
+    } catch (error: any) {
+      addToast({
+        color: 'danger',
+        description: 'Sorry, the password could not be updated',
+      });
+      console.error('Set new password error:', error?.data?.error || error);
       setError('Failed to update password. Please try again.');
     } finally {
       setIsLoading(false);
@@ -57,6 +79,7 @@ const SetNewPassword = () => {
             type="password"
             label="New Password"
             value={password}
+            minLength={MIN_PASSWORD_LENGTH}
             onChange={(e) => setPassword(e.target.value)}
             variant="bordered"
             fullWidth
@@ -67,6 +90,7 @@ const SetNewPassword = () => {
           <Input
             type="password"
             label="Confirm Password"
+            minLength={MIN_PASSWORD_LENGTH}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             variant="bordered"
