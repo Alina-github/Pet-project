@@ -14,7 +14,6 @@ export const POST = async (req: NextRequest) => {
   if (!email || !password || !code) {
     return NextResponse.json({ error: 'Missing required data.' }, { status: 400 });
   }
-
   let existingUser = db.data.users.find((user) => user.email === email);
   const validCode = db.data.codes.find((dbcode) => dbcode.email === email && dbcode.code == code);
 
@@ -26,9 +25,7 @@ export const POST = async (req: NextRequest) => {
   }
 
   existingUser.password = await bcrypt.hash(password, 10); // 10 is the recommended salt rounds
-  db.data.codes = db.data.codes.filter(
-    (codeEntry) => codeEntry.email !== email && codeEntry.code !== code
-  );
+  db.data.codes = db.data.codes.filter((dbcode) => dbcode.email !== email && dbcode.code !== code);
   await db.write();
 
   const { name, role } = existingUser;

@@ -12,7 +12,7 @@ import type { User } from '@/app/types';
 
 const MIN_PASSWORD_LENGTH = 3; //TODO: update to necessary value. Use 3 now for simplicity in testing.
 
-//TODO: remove example Link after Testing m: 'http://localhost:3000/auth/set-new-password?email=user4%40example.com&code=572314' for testing. Provide email and code from Database.
+//TODO: remove example Link after Testing m: 'http://localhost:3000/auth/set-new-password?email=123%40example.com&code=399907' for testing. Provide email and code from Database.
 
 const SetNewPassword = () => {
   const [password, setPassword] = useState('');
@@ -50,17 +50,17 @@ const SetNewPassword = () => {
         setSuccess(true);
         setError('');
         addToast({
-          color: 'secondary',
+          color: 'success',
           description: 'The password was successfully updated.',
         });
         router.push(PATH.HOME);
       }
-    } catch (error) {
+    } catch (error: any) {
       addToast({
         color: 'danger',
-        description: 'Sorry, the password can could not be updated',
+        description: 'Sorry, the password could not be updated',
       });
-      console.error('Set new password error:', error);
+      console.error('Set new password error:', error?.data?.error || error);
       setError('Failed to update password. Please try again.');
     } finally {
       setIsLoading(false);
