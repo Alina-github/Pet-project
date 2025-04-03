@@ -9,7 +9,6 @@ export const POST = async (req: NextRequest) => {
   if (!email || !password || !code) {
     return NextResponse.json({ error: 'Missing required data.' }, { status: 400 });
   }
-
   // Find user and verification code in the database
   const existingUser = await prisma.users.findUnique({
     where: { email }
@@ -19,7 +18,7 @@ export const POST = async (req: NextRequest) => {
     where: { email }
   });
 
-  if (!existingUser || !validCode || validCode.code !== code) {
+  if (!existingUser || !validCode || validCode.code != code) {
     return NextResponse.json(
       { error: `Invalid ${!existingUser ? 'user' : 'code'}` },
       { status: 403 }

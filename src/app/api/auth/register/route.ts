@@ -12,35 +12,34 @@ export const POST = async (req: NextRequest) => {
 
   // Check if user already exists using Prisma
   const existingUser = await prisma.users.findUnique({
-    where: { email }
+    where: { email },
   });
-  
+
   if (existingUser) {
     return NextResponse.json({ error: 'User already exists' }, { status: 400 });
   }
 
   const code = randomInt(100000, 999999); // Generate a 6-digit code
-  
-  // Create user and verification code in a transaction
-  const result = await prisma.$transaction(async (tx) => {
+
+  const newUser = {
+    email,
+    name,
+    role,
+  };
+
+  await prisma.$transaction(async (tx) => {
     // Create user
-    const newUser = await tx.users.create({
-      data: {
-        email,
-        name,
-        role
-      }
+    await tx.users.create({
+      data: newUser,
     });
-    
+
     // Create verification code
     await tx.codes.create({
       data: {
         email,
-        code
-      }
+        code,
+      },
     });
-    
-    return newUser;
   });
 
   // TODO: send email to user's email with link to frontend to set new password (not implementing now)
