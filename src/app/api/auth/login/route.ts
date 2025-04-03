@@ -1,4 +1,4 @@
-import db from '@/utils/db';
+import { prisma } from '@/utils/prisma';
 import bcrypt from 'bcryptjs';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
@@ -11,19 +11,16 @@ async function verifyPassword(enteredPassword: string, storedHash: string) {
 }
 
 export const POST = async (req: NextRequest) => {
-  await db.read(); // Load latest data from file
-  if (!db.data) {
-    return NextResponse.json({ error: 'Database not initialized' }, { status: 500 });
-  }
-
   const { email, password } = await req.json();
 
   if (!email || !password) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
-  // Find user by email
-  const user = db.data.users.find((user) => user.email === email);
+  // Find user by email using Prisma
+  const user = await prisma.users.findUnique({
+    where: { email }
+  });
 
   if (!user) {
     return NextResponse.json({ error: 'Email is incorrect' }, { status: 400 });

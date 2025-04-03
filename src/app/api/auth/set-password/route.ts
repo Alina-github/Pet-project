@@ -1,32 +1,45 @@
-import db from '@/utils/db';
+import { prisma } from '@/utils/prisma';
 import bcrypt from 'bcryptjs';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 export const POST = async (req: NextRequest) => {
-  await db.read();
   const { email, password, code } = await req.json();
-
-  if (!db.data) {
-    return NextResponse.json({ error: 'Database not initialized' }, { status: 500 });
-  }
 
   if (!email || !password || !code) {
     return NextResponse.json({ error: 'Missing required data.' }, { status: 400 });
   }
-  let existingUser = db.data.users.find((user) => user.email === email);
-  const validCode = db.data.codes.find((dbcode) => dbcode.email === email && dbcode.code == code);
 
-  if (!existingUser || !validCode) {
+  // Find user and verification code in the database
+  const existingUser = await prisma.users.findUnique({
+    where: { email }
+  });
+  
+  const validCode = await prisma.codes.findUnique({
+    where: { email }
+  });
+
+  if (!existingUser || !validCode || validCode.code !== code) {
     return NextResponse.json(
       { error: `Invalid ${!existingUser ? 'user' : 'code'}` },
       { status: 403 }
     );
   }
 
-  existingUser.password = await bcrypt.hash(password, 10); // 10 is the recommended salt rounds
-  db.data.codes = db.data.codes.filter((dbcode) => dbcode.email !== email && dbcode.code !== code);
-  await db.write();
+  // Update user's password and delete the verification code in a transaction
+  await prisma.$transaction(async (tx) => {
+    // Hash and update password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await tx.users.update({
+      where: { email },
+      data: { password: hashedPassword }
+    });
+    
+    // Delete the verification code
+    await tx.codes.delete({
+      where: { email }
+    });
+  });
 
   const { name, role } = existingUser;
   return NextResponse.json({ user: { name, email, role } });
