@@ -11,11 +11,11 @@ export const POST = async (req: NextRequest) => {
   }
   // Find user and verification code in the database
   const existingUser = await prisma.users.findUnique({
-    where: { email }
+    where: { email },
   });
-  
+
   const validCode = await prisma.codes.findUnique({
-    where: { email }
+    where: { email },
   });
 
   if (!existingUser || !validCode || validCode.code != code) {
@@ -25,21 +25,24 @@ export const POST = async (req: NextRequest) => {
     );
   }
 
-  // Update user's password and delete the verification code in a transaction
-  await prisma.$transaction(async (tx) => {
-    // Hash and update password
+  try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    await tx.users.update({
+    await prisma.users.update({
       where: { email },
-      data: { password: hashedPassword }
+      data: { password: hashedPassword },
     });
-    
-    // Delete the verification code
-    await tx.codes.delete({
-      where: { email }
+    await prisma.codes.delete({
+      where: { email },
     });
-  });
 
-  const { name, role } = existingUser;
-  return NextResponse.json({ user: { name, email, role } });
+    const { name, role } = existingUser;
+
+    return NextResponse.json({ user: { name, email, role } });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (e) {
+    return NextResponse.json(
+      { error: `Sorry, something went wrong. Please try again.` },
+      { status: 500 }
+    );
+  }
 };

@@ -2,9 +2,18 @@ import { prisma } from '@/utils/prisma';
 import { randomInt } from 'crypto';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import { getSession } from '@/app/lib/session';
 
 export const POST = async (req: NextRequest) => {
   const { email, name, role } = await req.json();
+
+  const session = await getSession();
+
+  const curUserRole = session?.role;
+
+  if (role && role !== 'user' && curUserRole !== 'admin') {
+    return NextResponse.json({ error: 'Error. Only Admins can create users with admin role.' }, { status: 403 });
+  }
 
   if (!email || !name || !role) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
