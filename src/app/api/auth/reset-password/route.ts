@@ -24,7 +24,8 @@ export const POST = async (req: NextRequest) => {
 
     // Create the verification code.
     try {
-      await prisma.code.create({ data: { email, code } });
+      await prisma.code.create({ data: { email, code, userId: existingUser.id } });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       return NextResponse.json(
         { error: `Sorry, something went wrong. Please try again.` },
@@ -35,6 +36,7 @@ export const POST = async (req: NextRequest) => {
     // TODO: send email with reset link.
 
     return NextResponse.json({ success: true });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     return NextResponse.json(
       { error: `Sorry, something went wrong. Please try again.` },

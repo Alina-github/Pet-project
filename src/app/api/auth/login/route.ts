@@ -38,6 +38,7 @@ export const POST = async (req: NextRequest) => {
 
     const { name, role } = user;
     return NextResponse.json({ user: { email, name, role } });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     return NextResponse.json(
       { error: `Sorry, something went wrong. Please try again.` },

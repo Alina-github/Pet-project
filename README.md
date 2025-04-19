@@ -22,6 +22,11 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Updating Prisma Models
+To generate prisma schema run
+
+```bash
+npx prisma generate
+```
 
 To make changes to your prisma/schema.prisma file (e.g., add fields, models, or relations), follow these steps to apply them
 

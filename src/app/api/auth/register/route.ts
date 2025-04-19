@@ -46,8 +46,9 @@ export const POST = async (req: NextRequest) => {
     };
 
     await prisma.user.create({
-      data: { ...newUser, code: { create: { code } } },
+      data: { ...newUser, codes: { create: { email, code } } },
     });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     return NextResponse.json(
       { error: `Sorry, something went wrong. Please try again.` },
