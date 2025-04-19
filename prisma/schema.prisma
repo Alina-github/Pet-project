@@ -12,18 +12,24 @@ enum Role {
   ADMIN
 }
 
-model Users {
-  email    String  @id @unique
+model User {
+  id       String  @id @unique @default(cuid()) // Primary key
+  email    String  @unique
   name     String? @db.VarChar(255)
-  role     String  @default("USER") @db.VarChar(255) //enforce a specific length constraint
+  role     String  @default("USER") @db.VarChar(255)
   password String?
-  code     Codes?
-}
-
-model Codes {
-  email String @unique
-  code  Int
-  user  Users  @relation(fields: [email], references: [email])
+  codes    Code[]
 
   @@map("users")
+}
+
+model Code {
+  userId String
+  email  String
+  code   Int
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@id([email, code]) // Composite primary key
+  @@map("codes")
 }

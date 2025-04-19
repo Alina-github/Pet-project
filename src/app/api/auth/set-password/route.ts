@@ -10,11 +10,11 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json({ error: 'Missing required data.' }, { status: 400 });
   }
   // Find user and verification code in the database
-  const existingUser = await prisma.users.findUnique({
+  const existingUser = await prisma.user.findUnique({
     where: { email },
   });
 
-  const validCode = await prisma.codes.findUnique({
+  const validCode = await prisma.code.findUnique({
     where: { email },
   });
 
@@ -27,11 +27,11 @@ export const POST = async (req: NextRequest) => {
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    await prisma.users.update({
+    await prisma.user.update({
       where: { email },
       data: { password: hashedPassword },
     });
-    await prisma.codes.delete({
+    await prisma.code.delete({
       where: { email },
     });
 

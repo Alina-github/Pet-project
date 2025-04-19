@@ -12,8 +12,8 @@ export const GET = async () => {
     return NextResponse.json({ error: 'Not logged in' }, { status: 401 });
   }
 
-  const curUser = await prisma.users.findUnique({
-    where: { email: userId as string }
+  const curUser = await prisma.user.findUnique({
+    where: { id: userId as string },
   });
 
   if (!curUser) {

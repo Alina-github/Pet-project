@@ -17,24 +17,31 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
-  // Find user by email using Prisma
-  const user = await prisma.users.findUnique({
-    where: { email }
-  });
+  try {
+    // Find user by email using Prisma
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
 
-  if (!user) {
-    return NextResponse.json({ error: 'Email is incorrect' }, { status: 400 });
+    if (!user) {
+      return NextResponse.json({ error: 'Email is incorrect' }, { status: 400 });
+    }
+
+    // Properly await password verification
+    const isValidPassword = await verifyPassword(password, user.password as string);
+
+    if (!isValidPassword) {
+      return NextResponse.json({ error: 'Password is incorrect' }, { status: 400 });
+    }
+
+    await createSession({ userId: user.id, role: user.role });
+
+    const { name, role } = user;
+    return NextResponse.json({ user: { email, name, role } });
+  } catch (e) {
+    return NextResponse.json(
+      { error: `Sorry, something went wrong. Please try again.` },
+      { status: 500 }
+    );
   }
-
-  // Properly await password verification
-  const isValidPassword = await verifyPassword(password, user.password as string);
-
-  if (!isValidPassword) {
-    return NextResponse.json({ error: 'Password is incorrect' }, { status: 400 });
-  }
-
-  await createSession({ userId: user.email, role: user.role });
-
-  const { name, role } = user;
-  return NextResponse.json({ user: { email, name, role } });
 };
