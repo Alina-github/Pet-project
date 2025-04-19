@@ -1,4 +1,4 @@
-import db from '@/utils/db';
+import { prisma } from '@/utils/prisma';
 import bcrypt from 'bcryptjs';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
@@ -11,33 +11,38 @@ async function verifyPassword(enteredPassword: string, storedHash: string) {
 }
 
 export const POST = async (req: NextRequest) => {
-  await db.read(); // Load latest data from file
-  if (!db.data) {
-    return NextResponse.json({ error: 'Database not initialized' }, { status: 500 });
-  }
-
   const { email, password } = await req.json();
 
   if (!email || !password) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
-  // Find user by email
-  const user = db.data.users.find((user) => user.email === email);
+  try {
+    // Find user by email using Prisma
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
 
-  if (!user) {
-    return NextResponse.json({ error: 'Email is incorrect' }, { status: 400 });
+    if (!user) {
+      return NextResponse.json({ error: 'Email is incorrect' }, { status: 400 });
+    }
+
+    // Properly await password verification
+    const isValidPassword = await verifyPassword(password, user.password as string);
+
+    if (!isValidPassword) {
+      return NextResponse.json({ error: 'Password is incorrect' }, { status: 400 });
+    }
+
+    await createSession({ userId: user.id, role: user.role });
+
+    const { name, role } = user;
+    return NextResponse.json({ user: { email, name, role } });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (e) {
+    return NextResponse.json(
+      { error: `Sorry, something went wrong. Please try again.` },
+      { status: 500 }
+    );
   }
-
-  // Properly await password verification
-  const isValidPassword = await verifyPassword(password, user.password as string);
-
-  if (!isValidPassword) {
-    return NextResponse.json({ error: 'Password is incorrect' }, { status: 400 });
-  }
-
-  await createSession({ userId: user.email, role: user.role });
-
-  const { name, role } = user;
-  return NextResponse.json({ user: { email, name, role } });
 };

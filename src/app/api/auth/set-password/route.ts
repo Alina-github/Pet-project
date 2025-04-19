@@ -1,33 +1,48 @@
-import db from '@/utils/db';
+import { prisma } from '@/utils/prisma';
 import bcrypt from 'bcryptjs';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 export const POST = async (req: NextRequest) => {
-  await db.read();
   const { email, password, code } = await req.json();
-
-  if (!db.data) {
-    return NextResponse.json({ error: 'Database not initialized' }, { status: 500 });
-  }
 
   if (!email || !password || !code) {
     return NextResponse.json({ error: 'Missing required data.' }, { status: 400 });
   }
-  let existingUser = db.data.users.find((user) => user.email === email);
-  const validCode = db.data.codes.find((dbcode) => dbcode.email === email && dbcode.code == code);
+  // Find user and verification code in the database
+  const existingUser = await prisma.user.findUnique({
+    where: { email },
+  });
 
-  if (!existingUser || !validCode) {
+  const validCode = await prisma.code.findUnique({
+    where: { email },
+  });
+
+  if (!existingUser || !validCode || validCode.code != code) {
     return NextResponse.json(
       { error: `Invalid ${!existingUser ? 'user' : 'code'}` },
       { status: 403 }
     );
   }
 
-  existingUser.password = await bcrypt.hash(password, 10); // 10 is the recommended salt rounds
-  db.data.codes = db.data.codes.filter((dbcode) => dbcode.email !== email && dbcode.code !== code);
-  await db.write();
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await prisma.user.update({
+      where: { email },
+      data: { password: hashedPassword },
+    });
+    await prisma.code.delete({
+      where: { email },
+    });
 
-  const { name, role } = existingUser;
-  return NextResponse.json({ user: { name, email, role } });
+    const { name, role } = existingUser;
+
+    return NextResponse.json({ user: { name, email, role } });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (e) {
+    return NextResponse.json(
+      { error: `Sorry, something went wrong. Please try again.` },
+      { status: 500 }
+    );
+  }
 };
