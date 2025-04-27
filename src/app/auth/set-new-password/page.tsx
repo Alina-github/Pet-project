@@ -12,7 +12,7 @@ import type { User } from '@/app/types';
 
 const MIN_PASSWORD_LENGTH = 3; //TODO: update to necessary value. Use 3 now for simplicity in testing.
 
-//TODO: remove example Link after Testing m: 'http://localhost:3000/auth/set-new-password?email=test1%40test.com&code=244838' for testing. Provide email and code from Database.
+//TODO: remove example Link after Testing m: 'http://localhost:3000/auth/set-new-password?email=123%40example.com&code=130414' for testing. Provide email and code from Database.
 
 const SetNewPassword = () => {
   const [password, setPassword] = useState('');

@@ -9,33 +9,52 @@ export const POST = async (req: NextRequest) => {
   if (!email || !password || !code) {
     return NextResponse.json({ error: 'Missing required data.' }, { status: 400 });
   }
+
+  let user;
   // Find user and verification code in the database
-  const existingUser = await prisma.user.findUnique({
-    where: { email },
-  });
-
-  const validCode = await prisma.code.findUnique({
-    where: { email },
-  });
-
-  if (!existingUser || !validCode || validCode.code != code) {
+  try {
+    user = await prisma.user.findFirst({
+      where: {
+        AND: [
+          { email },
+          { codes: { some: { code: Number(code) } } },
+        ],
+      }
+    });
+  } catch {
     return NextResponse.json(
-      { error: `Invalid ${!existingUser ? 'user' : 'code'}` },
+      { error: `Sorry, something went wrong. Please try again.` },
+      { status: 500 }
+    );
+  }
+
+  if (!user) {
+    return NextResponse.json(
+      { error: `Incoming parameters are incorrect.` },
       { status: 403 }
     );
   }
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
+
+// Update user password
     await prisma.user.update({
       where: { email },
       data: { password: hashedPassword },
     });
+
+// Delete code
     await prisma.code.delete({
-      where: { email },
+      where: {
+        email_code: {
+          email,
+          code: Number(code),
+        },
+      },
     });
 
-    const { name, role } = existingUser;
+    const { name, role } = user;
 
     return NextResponse.json({ user: { name, email, role } });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

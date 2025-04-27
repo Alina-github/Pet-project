@@ -1,4 +1,5 @@
 import { prisma } from '@/utils/prisma';
+import { Role } from '@prisma/client';
 import { randomInt } from 'crypto';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
@@ -20,7 +21,7 @@ export const POST = async (req: NextRequest) => {
   }
 
   if (
-    role.toLowerCase() !== 'user' &&
+    role.toLowerCase() !== Role.USER &&
     typeof curUserRole == 'string' &&
     curUserRole?.toLowerCase() !== 'admin'
   ) {
@@ -28,15 +29,6 @@ export const POST = async (req: NextRequest) => {
   }
 
   try {
-    // Check if user already exists using Prisma
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (existingUser) {
-      return NextResponse.json({ error: 'User already exists' }, { status: 400 });
-    }
-
     const code = randomInt(100000, 999999); // Generate a 6-digit code
 
     const newUser = {
