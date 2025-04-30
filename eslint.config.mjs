@@ -9,6 +9,12 @@ export default [
   },
   // Base ESLint recommended rules
   js.configs.recommended,
+  {
+    env: {
+      browser: true,
+      es2021: true,
+    }
+  },
   // Common environment globals
   {
     languageOptions: {
