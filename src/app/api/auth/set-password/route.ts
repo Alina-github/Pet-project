@@ -1,33 +1,67 @@
-import db from '@/utils/db';
+import { prisma } from '@/utils/prisma';
 import bcrypt from 'bcryptjs';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 export const POST = async (req: NextRequest) => {
-  await db.read();
   const { email, password, code } = await req.json();
-
-  if (!db.data) {
-    return NextResponse.json({ error: 'Database not initialized' }, { status: 500 });
-  }
 
   if (!email || !password || !code) {
     return NextResponse.json({ error: 'Missing required data.' }, { status: 400 });
   }
-  let existingUser = db.data.users.find((user) => user.email === email);
-  const validCode = db.data.codes.find((dbcode) => dbcode.email === email && dbcode.code == code);
 
-  if (!existingUser || !validCode) {
+  let user;
+  // Find user and verification code in the database
+  try {
+    user = await prisma.user.findFirst({
+      where: {
+        AND: [
+          { email },
+          { codes: { some: { code: Number(code) } } },
+        ],
+      }
+    });
+  } catch {
     return NextResponse.json(
-      { error: `Invalid ${!existingUser ? 'user' : 'code'}` },
+      { error: `Sorry, something went wrong. Please try again.` },
+      { status: 500 }
+    );
+  }
+
+  if (!user) {
+    return NextResponse.json(
+      { error: `Incoming parameters are incorrect.` },
       { status: 403 }
     );
   }
 
-  existingUser.password = await bcrypt.hash(password, 10); // 10 is the recommended salt rounds
-  db.data.codes = db.data.codes.filter((dbcode) => dbcode.email !== email && dbcode.code !== code);
-  await db.write();
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-  const { name, role } = existingUser;
-  return NextResponse.json({ user: { name, email, role } });
+// Update user password
+    await prisma.user.update({
+      where: { email },
+      data: { password: hashedPassword },
+    });
+
+// Delete code
+    await prisma.code.delete({
+      where: {
+        email_code: {
+          email,
+          code: Number(code),
+        },
+      },
+    });
+
+    const { name, role } = user;
+
+    return NextResponse.json({ user: { name, email, role } });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (e) {
+    return NextResponse.json(
+      { error: `Sorry, something went wrong. Please try again.` },
+      { status: 500 }
+    );
+  }
 };

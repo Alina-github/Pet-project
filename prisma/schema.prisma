@@ -1,52 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/client"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 model User {
-  id        String   @id @default(uuid())
-  name      String?
   email     String   @unique
+  name      String?  @db.VarChar(255)
   password  String?
+  role      String   @default("USER") @db.VarChar(255)
+  id        String   @id @unique @default(cuid())
   createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  posts     Post[] // * virtual field
+  updatedAt DateTime @default(now()) @map("updated_at")
+  codes     Code[]
 
   @@map("users")
 }
 
-model Post {
-  id             String        @id @default(uuid())
-  title          String?
-  content        String?
-  authorId       String        @map("author_id") // Relation to User model User.id
-  author         User          @relation(fields: [authorId], references: [id]) // * virtual field, Relation 1-N
-  categories     Category[]    @relation("CategoryToPost") // * virtual field, Relation N-N
-  postMetaDataId String?       @unique @map("post_meta_data_id")
-  postMetaData   PostMetaData? @relation(fields: [postMetaDataId], references: [id]) // * virtual field, Relation 1-1
+model Code {
+  email     String
+  code      Int
+  userId    String
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id])
 
-  @@map("posts")
+  @@id([email, code])
+  @@map("codes")
 }
 
-model Category {
-  id    String @id @default(uuid())
-  name  String
-  slug  String @unique
-  posts Post[] @relation("CategoryToPost")
-
-  @@map("categories")
-}
-
-model PostMetaData {
-  id             String   @id @default(uuid())
-  tags           String[]
-  someOtherField String   @default("some value") @map("some_other_field")
-  postId         String?  @unique @map("post_id")
-  Post           Post?
-
-  @@map("post_meta_data")
+enum Role {
+  USER
+  ADMIN
 }
