@@ -1,39 +1,38 @@
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
 generator client {
   provider = "prisma-client-js"
   output   = "./generated/client"
 }
 
-enum Role {
-  USER
-  ADMIN
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String   @id @unique @default(cuid()) // Primary key
   email     String   @unique
   name      String?  @db.VarChar(255)
-  role      String   @default("USER") @db.VarChar(255)
   password  String?
-  codes     Code[]
+  role      String   @default("USER") @db.VarChar(255)
+  id        String   @id @unique @default(cuid())
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @map("updated_at")
+  codes     Code[]
 
   @@map("users")
 }
 
 model Code {
-  userId    String
   email     String
   code      Int
+  userId    String
   createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id])
 
-  user User @relation(fields: [userId], references: [id])
-
-  @@id([email, code]) // Composite primary key
+  @@id([email, code])
   @@map("codes")
+}
+
+enum Role {
+  USER
+  ADMIN
 }
