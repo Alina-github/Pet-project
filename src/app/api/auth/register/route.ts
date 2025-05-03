@@ -1,5 +1,5 @@
 import { prisma } from '@/utils/prisma';
-import { Role } from '@prisma/client';
+import { Role } from '@/../prisma/generated/client';
 import { randomInt } from 'crypto';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
@@ -21,9 +21,9 @@ export const POST = async (req: NextRequest) => {
   }
 
   if (
-    role.toLowerCase() !== Role.USER &&
+    role !== Role.USER &&
     typeof curUserRole == 'string' &&
-    curUserRole?.toLowerCase() !== 'admin'
+    curUserRole?.toUpperCase() !== Role.ADMIN
   ) {
     return NextResponse.json({ error: 'Only admins can assign admin roles.' }, { status: 403 });
   }
