@@ -1,3 +1,4 @@
+import { verifyCredentials } from '@/utils/auth';
 import NextAuth, { CredentialsSignin } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 
@@ -9,11 +10,15 @@ export const { signIn, signOut, auth, handlers } = NextAuth({
   providers: [
     Credentials({
       credentials: {
-        username: { label: 'Username' },
+        email: { label: 'Email' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials) {
-        throw new InvalidLoginError();
+      authorize: async (credentials) => {
+        if (typeof credentials?.email !== 'string' || typeof credentials?.password !== 'string') {
+          throw new InvalidLoginError()
+        }
+
+        return await verifyCredentials(credentials.email, credentials.password);
       },
     }),
   ],
