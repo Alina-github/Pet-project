@@ -1,22 +1,18 @@
 'use client';
 
-import { Button } from '@heroui/react';
-import { addToast } from '@heroui/toast';
 import { signOut } from 'next-auth/react';
+import { toast } from 'sonner';
 
+import { Button } from '@/components/ui/button';
 
 export default function LogoutButton() {
   const handleLogout = async () => {
     await signOut({ redirect: true, redirectTo: '/' });
-    addToast({
-      color: 'secondary',
-      description: 'Logged out successfully.',
-    });
+    toast.success('Logged out successfully!');
   };
-
   return (
-    <Button color={'secondary'} onClick={handleLogout}>
-      {'Logout'}
+    <Button variant="outline" onClick={handleLogout}>
+      Logout
     </Button>
   );
 }
