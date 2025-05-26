@@ -1,95 +1,102 @@
 'use client';
 
 import { PATH } from '@/constants/routing';
-import { Button } from '@heroui/react';
-import { Input, Link } from '@heroui/react';
-import { addToast } from '@heroui/toast';
 import { signIn } from 'next-auth/react';
+import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 import FormContainer from '@/app/components/FormContainer';
 
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [credentials, setCredentials] = useState({
+    email: '',
+    password: '',
+  });
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      setError('Please fill in all fields');
-      return;
-    }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCredentials({ ...credentials, [e.target.name]: e.target.value });
+  };
 
-    setError('');
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setIsLoading(true);
-
+    setError(null);
     try {
       const result = await signIn('credentials', {
-        email,
-        password,
         redirect: false,
+        email: credentials.email,
+        password: credentials.password,
       });
-
-      if (!result?.error) {
-        addToast({
-          color: 'secondary',
-          description: 'Login successful.',
-        });
-        router.push(PATH.HOME);
+      if (result?.error) {
+        setError('Invalid Password or Email.');
+        toast.error('Login failed.');
       } else {
-        throw new Error(result.error);
+        toast.success('Login successful.');
+        router.push(PATH.HOME);
       }
     } catch (error) {
-      addToast({
-        color: 'danger',
-        description: 'Login failed.',
-      });
-      console.error('login error:', error);
-      setError('Invalid email or password');
-    } finally {
-      setIsLoading(false);
+      setError('An unexpected error occurred.');
     }
+    setIsLoading(false);
   };
 
   return (
-    <FormContainer title="Login">
-      <Input
-        type="email"
-        label="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        variant="bordered"
-        fullWidth
-        size="lg"
-        placeholder="Enter your email"
-      />
-
-      <Input
-        type="password"
-        label="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        variant="bordered"
-        fullWidth
-        size="lg"
-        placeholder="Enter your password"
-      />
-
-      {error && <p className="text-sm text-danger">{error}</p>}
-
-      <Button color="danger" onPress={handleLogin} fullWidth size="lg" isLoading={isLoading}>
-        Login
-      </Button>
-
-      <div className="mt-2 flex justify-center">
-        <Link href={PATH.RESET_PASSWORD} className="text-sm">
-          Forgot password?
-        </Link>
-      </div>
-    </FormContainer>
+    <div className="flex h-screen items-center justify-center">
+      <FormContainer
+        title="Login"
+        footerContent={
+          <p className="text-center text-sm">
+            Don&apos;t have an account?{' '}
+            <NextLink
+              href={PATH.LOGIN}
+              className="font-semibold text-indigo-600 hover:text-indigo-500">
+              Sign up
+            </NextLink>
+          </p>
+        }>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="Enter your email"
+              value={credentials.email}
+              onChange={handleChange}
+              disabled={isLoading}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="Enter your password"
+              value={credentials.password}
+              onChange={handleChange}
+              disabled={isLoading}
+              required
+            />
+          </div>
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? 'Logging in...' : 'Login'}
+          </Button>
+        </form>
+      </FormContainer>
+    </div>
   );
 };
 
