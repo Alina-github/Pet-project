@@ -1,16 +1,14 @@
 'use client';
 
 import { PATH } from '@/constants/routing';
-import { api } from '@/utils/api';
-import { API_ROUTES } from '@/utils/constants';
 import { Button } from '@heroui/react';
 import { Input, Link } from '@heroui/react';
 import { addToast } from '@heroui/toast';
+import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import FormContainer from '@/app/components/FormContainer';
-import type { User } from '@/app/types';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -29,14 +27,20 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response: User = await api.post(API_ROUTES.LOGIN, { email, password });
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
 
-      if (response.user) {
+      if (!result?.error) {
         addToast({
           color: 'secondary',
           description: 'Login successful.',
         });
         router.push(PATH.HOME);
+      } else {
+        throw new Error(result.error);
       }
     } catch (error) {
       addToast({
