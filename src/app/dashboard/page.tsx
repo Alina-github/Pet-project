@@ -35,7 +35,6 @@ const Dashboard = () => {
     },
   ]);
 
- // const handleAddModule = (module: Module) => {
   const handleAddModule = (module: any) => {
     setModules((prev) => [...prev, module]);
   };

@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-import FormContainer from '@/app/components/FormContainer';
+import FormContainer from '@/components/common/FormContainer';
 import { User } from '@/app/types';
 
 import { Button } from '@/components/ui/button';

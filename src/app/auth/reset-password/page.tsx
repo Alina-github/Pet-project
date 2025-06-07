@@ -7,7 +7,7 @@ import NextLink from 'next/link';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-import FormContainer from '@/app/components/FormContainer';
+import FormContainer from '@/components/common/FormContainer';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

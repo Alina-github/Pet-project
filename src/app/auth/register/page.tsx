@@ -1,70 +1,100 @@
 'use client';
 
 import { PATH } from '@/constants/routing';
-import { signIn } from 'next-auth/react';
+import { api } from '@/utils/api';
+import { API_ROUTES } from '@/utils/constants';
+import { isValidEmail } from '@/utils/validators';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 import FormContainer from '@/components/common/FormContainer';
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-const Login = () => {
+const Register = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [credentials, setCredentials] = useState({
+
+  const [formData, setFormData] = useState({
+    name: '',
     email: '',
     password: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCredentials({ ...credentials, [e.target.name]: e.target.value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const { email } = formData;
+
+    if (!isValidEmail(email)) {
+      // Check that user hasn't entered multiple emails.
+      setError('Please enter only one email address.');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
+
     try {
-      const result = await signIn('credentials', {
-        redirect: false,
-        email: credentials.email,
-        password: credentials.password,
+      const { password, name } = formData;
+
+      const res: { error?: string; message?: string } = await api.post(API_ROUTES.REGISTER, {
+        password,
+        email,
+        name,
       });
-      if (result?.error) {
-        setError('Invalid Password or Email.');
-        toast.error('Login failed.');
+      console.log(res);
+      if (res.error) {
+        toast.error('Registration failed.');
+        setError('Error creating account.');
       } else {
-        toast.success('Login successful.');
-        router.push(PATH.DASHBOARD);
+        toast.success('Account created. You can now login.');
+        router.push(PATH.LOGIN);
       }
-    } catch (error) {
-      setError('An unexpected error occurred.');
-      toast.error('An unexpected error occurred. Please try again later.');
+    } catch {
+      toast.error('Something went wrong.');
+      setError('Unexpected error.');
     }
+
     setIsLoading(false);
   };
 
   return (
     <div className="flex h-screen items-center justify-center">
       <FormContainer
-        title="Login"
+        title="Register"
         footerContent={
           <p className="text-center text-sm">
-            Don&apos;t have an account?{' '}
+            Already have an account?{' '}
             <NextLink
-              href={PATH.REGISTER}
+              href={PATH.LOGIN}
               className="font-semibold text-indigo-600 hover:text-indigo-500">
-              Sign up
+              Login
             </NextLink>
           </p>
         }>
         <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              name="name"
+              type="text"
+              placeholder="Your name"
+              value={formData.name}
+              onChange={handleChange}
+              disabled={isLoading}
+              required
+            />
+          </div>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -72,7 +102,7 @@ const Login = () => {
               name="email"
               type="email"
               placeholder="Enter your email"
-              value={credentials.email}
+              value={formData.email}
               onChange={handleChange}
               disabled={isLoading}
               required
@@ -84,8 +114,8 @@ const Login = () => {
               id="password"
               name="password"
               type="password"
-              placeholder="Enter your password"
-              value={credentials.password}
+              placeholder="Create a password"
+              value={formData.password}
               onChange={handleChange}
               disabled={isLoading}
               required
@@ -93,7 +123,7 @@ const Login = () => {
           </div>
           {error && <p className="text-sm text-red-600">{error}</p>}
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? 'Logging in...' : 'Login'}
+            {isLoading ? 'Creating account...' : 'Sign Up'}
           </Button>
         </form>
       </FormContainer>
@@ -101,4 +131,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
