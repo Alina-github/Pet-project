@@ -1,4 +1,4 @@
-import { verifyCredentials } from '@/utils/auth';
+import { verifyCredentials } from '@/lib/auth';
 import NextAuth, { CredentialsSignin } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 
