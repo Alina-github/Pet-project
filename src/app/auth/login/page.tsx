@@ -1,6 +1,6 @@
 'use client';
 
-import { PATH } from '@/constants/routing';
+import { PATHS } from '@/lib/constants';
 import { signIn } from 'next-auth/react';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -41,7 +41,7 @@ const Login = () => {
         toast.error('Login failed.');
       } else {
         toast.success('Login successful.');
-        router.push(PATH.DASHBOARD);
+        router.push(PATHS.DASHBOARD);
       }
     } catch (error) {
       setError('An unexpected error occurred.');
@@ -58,7 +58,7 @@ const Login = () => {
           <p className="text-center text-sm">
             Don&apos;t have an account?{' '}
             <NextLink
-              href={PATH.REGISTER}
+              href={PATHS.REGISTER}
               className="font-semibold text-indigo-600 hover:text-indigo-500">
               Sign up
             </NextLink>

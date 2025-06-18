@@ -1,15 +1,15 @@
 'use client';
 
-import { PATH } from '@/constants/routing';
-import { api } from '@/utils/api';
-import { API_ROUTES } from '@/utils/constants';
+import { PATHS } from '@/lib/constants';
+import { api } from '@/lib/api';
+import { API_ROUTES } from '@/lib/constants';
 import NextLink from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 import FormContainer from '@/components/common/FormContainer';
-import { User } from '@/app/types';
+import { User } from '@/types';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -52,7 +52,7 @@ const SetNewPassword = () => {
       if (response.user) {
         toast.success('Password has been reset successfully!');
         setSuccess('Password has been reset successfully! You can now login.');
-        setTimeout(() => router.push(PATH.LOGIN), 3000); // Optional redirect
+        setTimeout(() => router.push(PATHS.LOGIN), 3000); // Optional redirect
       }
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred.');
@@ -99,7 +99,7 @@ const SetNewPassword = () => {
         </form>
         <div className="mt-4 text-center text-sm">
           <NextLink
-            href={PATH.LOGIN}
+            href={PATHS.LOGIN}
             className="font-semibold text-indigo-600 hover:text-indigo-500">
             Back to Login
           </NextLink>

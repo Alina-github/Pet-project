@@ -1,9 +1,9 @@
 'use client';
 
-import { PATH } from '@/constants/routing';
-import { api } from '@/utils/api';
-import { API_ROUTES } from '@/utils/constants';
-import { isValidEmail } from '@/utils/validators';
+import { PATHS } from '@/lib/constants';
+import { api } from '@/lib/api';
+import { API_ROUTES } from '@/lib/constants';
+import { isValidEmail } from '@/lib/validators';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -57,7 +57,7 @@ const Register = () => {
         setError('Error creating account.');
       } else {
         toast.success('Account created. You can now login.');
-        router.push(PATH.LOGIN);
+        router.push(PATHS.LOGIN);
       }
     } catch {
       toast.error('Something went wrong.');
@@ -75,7 +75,7 @@ const Register = () => {
           <p className="text-center text-sm">
             Already have an account?{' '}
             <NextLink
-              href={PATH.LOGIN}
+              href={PATHS.LOGIN}
               className="font-semibold text-indigo-600 hover:text-indigo-500">
               Login
             </NextLink>

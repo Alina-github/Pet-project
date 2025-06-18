@@ -1,8 +1,8 @@
 'use client';
 
-import { PATH } from '@/constants/routing';
-import { api } from '@/utils/api';
-import { API_ROUTES } from '@/utils/constants';
+import { PATHS } from '@/lib/constants';
+import { api } from '@/lib/api';
+import { API_ROUTES } from '@/lib/constants';
 import NextLink from 'next/link';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -61,7 +61,7 @@ const ResetPassword = () => {
         </form>
         <div className="mt-4 text-center text-sm">
           <NextLink
-            href={PATH.LOGIN}
+            href={PATHS.LOGIN}
             className="font-semibold text-indigo-600 hover:text-indigo-500">
             Back to Login
           </NextLink>
