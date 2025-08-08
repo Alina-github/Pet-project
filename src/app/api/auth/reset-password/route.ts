@@ -1,4 +1,4 @@
-import { prisma } from '@/utils/prisma';
+import { prisma } from '@/lib/prisma';
 import { randomInt } from 'crypto';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';

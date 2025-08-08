@@ -40,4 +40,4 @@ export const api = createFetchHelper({
   headers: {
     'Content-Type': 'application/json',
   },
-});
+}); 

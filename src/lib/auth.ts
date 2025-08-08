@@ -1,5 +1,5 @@
 import { compare } from 'bcryptjs';
-import { prisma } from '@/utils/prisma';
+import { prisma } from '@/lib/prisma';
 
 export async function verifyCredentials(email: string, password: string) {
   if (!email || !password) {
@@ -23,4 +23,4 @@ export async function verifyCredentials(email: string, password: string) {
   } else {
     return null;
   }
-}
+} 

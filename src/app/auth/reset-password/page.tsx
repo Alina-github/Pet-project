@@ -1,86 +1,73 @@
 'use client';
 
-import { PATH } from '@/constants/routing';
-import { api } from '@/utils/api';
-import { API_ROUTES } from '@/utils/constants';
-import { Input, Button, Link, addToast } from '@heroui/react';
+import { PATHS } from '@/lib/constants';
+import { api } from '@/lib/api';
+import { API_ROUTES } from '@/lib/constants';
+import NextLink from 'next/link';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
-import FormContainer from '@/app/components/FormContainer';
+import FormContainer from '@/components/common/FormContainer';
+
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const ResetPassword = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-  const handleResetPassword = async () => {
-    if (!email) {
-      setError('Please enter your email');
-      return;
-    }
-
-    setError('');
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setIsLoading(true);
+    setError(null);
+    setSuccess(null);
 
     try {
       await api.post(API_ROUTES.RESET_PASSWORD, { email });
-      setSuccess(true);
-      addToast({
-        color: 'success',
-        description: 'Reset link sent! Check your email.',
-      });
-    } catch (error: any) {
-      addToast({
-        color: 'danger',
-        description: 'Failed to send reset link.',
-      });
-      console.error('Reset password error:', error.data?.error);
-    } finally {
-      setIsLoading(false);
+      toast.success('Password reset link sent to your email!');
+      setSuccess('Password reset link sent to your email!');
+    } catch (err: any) {
+      setError(err.message || 'An unexpected error occurred.');
+      toast.error(err.message || 'An unexpected error occurred.');
     }
+    setIsLoading(false);
   };
 
   return (
-    <FormContainer title="Reset Password">
-      {!success ? (
-        <>
-          <p className="text-center text-sm text-gray-600">
-            Enter your email address and we'll send you a link to reset your password.
-          </p>
-
-          <Input
-            type="email"
-            label="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            variant="bordered"
-            fullWidth
-            size="lg"
-            placeholder="Enter your email"
-          />
-
-          {error && <p className="text-sm text-danger">{error}</p>}
-
-          <Button
-            color="primary"
-            onPress={handleResetPassword}
-            className="mt-2"
-            fullWidth
-            size="lg"
-            isLoading={isLoading}>
-            Send Reset Link
+    <div className="flex h-screen items-center justify-center">
+      <FormContainer title="Reset Password">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={isLoading}
+              required
+              placeholder="Enter your email address"
+            />
+          </div>
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          {success && <p className="text-sm text-green-600">{success}</p>}
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? 'Sending Link...' : 'Send Reset Link'}
           </Button>
-        </>
-      ) : (
-        <div className="py-4 text-center">
-          <p className="mb-4 text-success">Reset link sent! Check your email.</p>
-          <Button as={Link} href={PATH.LOGIN} color="primary" variant="flat">
+        </form>
+        <div className="mt-4 text-center text-sm">
+          <NextLink
+            href={PATHS.LOGIN}
+            className="font-semibold text-indigo-600 hover:text-indigo-500">
             Back to Login
-          </Button>
+          </NextLink>
         </div>
-      )}
-    </FormContainer>
+      </FormContainer>
+    </div>
   );
 };
 

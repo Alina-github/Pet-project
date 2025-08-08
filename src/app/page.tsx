@@ -1,29 +1,32 @@
 'use client';
 
-import { Avatar } from '@heroui/avatar';
-import { Button } from '@heroui/button';
-import { Image } from '@heroui/image';
-import { Link } from '@heroui/react';
 import { useSession } from 'next-auth/react';
-import LogoutButton from '@/app/auth/logout/page';
+import Link from 'next/link';
+
+import { Button } from '@/components/ui/button';
 
 export default function Home() {
   const { data: session } = useSession();
   const isLoggedIn = !!session?.user;
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-3">
-      <Avatar isBordered color="secondary" src="https://i.pravatar.cc/150?u=a042581f4e29026704d" />
-      <Image alt="Next.js logo" src="/next.svg" width={300} />
-
+      <h6 className="text-4xl font-medium dark:text-white">MonViz</h6>
       {isLoggedIn ? (
-        <>
-          <div>
-            <h1 className="text-sm font-medium text-gray-900 dark:text-white">Welcome, {session?.user?.name || 'User'}</h1>
-          </div>
-          <LogoutButton />
-        </>
+        <div>
+          <h1 className="text-sm font-medium text-gray-900 dark:text-white">
+            <p>Welcome, {session?.user?.name || 'User'}</p>
+            <p className="text-gray-500 dark:text-gray-400">
+              Go to{' '}
+              <a
+                href="/dashboard"
+                className="font-medium text-blue-600 underline hover:no-underline dark:text-blue-500">
+                Dashboard
+              </a>
+            </p>
+          </h1>
+        </div>
       ) : (
-        <Button radius="full" color="secondary" variant="shadow">
+        <Button asChild variant="secondary" className="rounded-full shadow-md">
           <Link href="/auth/login">Login</Link>
         </Button>
       )}
